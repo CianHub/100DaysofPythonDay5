@@ -2,6 +2,7 @@ from collections import defaultdict, namedtuple, Counter, deque
 import csv
 import random
 from urllib.request import urlretrieve
+import pprint
 
 movie_data = 'https://raw.githubusercontent.com/pybites/challenges/solutions/13/movie_metadata.csv'
 movies_csv = 'movies.csv'
@@ -11,8 +12,7 @@ Movie = namedtuple('Movie', 'title year score')
 
 
 def get_movies_by_director(data=movies_csv):
-    """Extracts all movies from csv and stores them in a dictionary
-       where keys are directors, and values is a list of movies (named tuples)"""
+    # Extracts all movies from csv and stores them in a dictionary where keys are directors, and values is a list of movies (named tuples)
     directors = defaultdict(list)
     with open(data, encoding='utf-8') as f:
         # Converts each CSV line into an OrderedDict
@@ -35,4 +35,13 @@ def get_movies_by_director(data=movies_csv):
     return directors
 
 
-get_movies_by_director()
+def get_top_20_highest_rated(directors=get_movies_by_director()):
+    count = Counter()
+    for director, movies in directors.items():
+        # Iterate through the key value pairs
+        if len(movies) > 3 and all(movie.year >= 1960 for movie in movies):
+            # If the movies meet criteria then get an average of their films score and add in to the Counter
+            for movie in movies:
+                count[director] += round((movie.score / len(movies)), 2)
+
+    return count.most_common(20)
